@@ -7,6 +7,7 @@ import { bindActionCreators } from "redux";
 import CourseList from "./CourseList";
 import Spinner from "../common/Spinner";
 import { Redirect } from "react-router";
+import { toast } from "react-toastify";
 
 class CoursesPage extends React.Component {
   state = {
@@ -21,6 +22,18 @@ class CoursesPage extends React.Component {
       alert("loading authors failed" + error);
     });
   }
+
+  //
+  handleDeleteCourse = (course) => {
+    toast.success("Course deleted");
+    // there is and error to fix ( no error is exproted )
+    this.props.actions.deleteCourse(course).catch((error) => {
+      toast.error("Delete failed. " + error.message, {
+        autoClose: false,
+      });
+    });
+  };
+
   render() {
     return (
       <>
@@ -38,7 +51,10 @@ class CoursesPage extends React.Component {
               Add Course
             </button>
 
-            <CourseList courses={this.props.courses} />
+            <CourseList
+              onDeleteClick={this.handleDeleteCourse}
+              courses={this.props.courses}
+            />
           </>
         )}
       </>
@@ -80,6 +96,10 @@ function mapDispatchToProps(dispatch) {
     actions: {
       loadCourses: bindActionCreators(courseActions.loadCourses, dispatch),
       loadAuthors: bindActionCreators(authorActions.loadAuthors, dispatch),
+      deleteCourse: bindActionCreators(
+        courseActions.deleteCourseOptimistic,
+        dispatch
+      ),
     }, // passing all the course actions
   };
 }
